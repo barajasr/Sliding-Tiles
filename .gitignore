@@ -1,12 +1,19 @@
 # Compiled Object files
-*.slo
-*.lo
 *.o
 
-# Compiled Dynamic libraries
-*.so
+# Executable
+Hex
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
+# Images, I can't remember the original source to credit these appropiately
+70K.png
+Alice_Callie.png
+Alice.png
+Baby_Yoshi.png
+Black_Forest_Cake.png
+Blue_Hair.png
+Coney.png
+Harley.png
+
+# Other files
+*.txt
+Makefile
