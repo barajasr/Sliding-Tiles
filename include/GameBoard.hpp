@@ -30,9 +30,10 @@ class GameBoard{
 	
 	std::string imageToLoad();
 	void loadLevel();
-	void swapTiles(const SlideDirection& direction);
+	void swapTiles();
 	void swapTilesAnimation();
 	void tileAnimation(const sf::Vector2u& tileToMove);
+	void tileToMove(sf::Vector2i& tileLocation);
 	
 	public:
 	GameBoard(sf::RenderWindow* root, unsigned levelToLoad=0);
@@ -45,6 +46,9 @@ class GameBoard{
 	void levelUp();
 	void processEvent(sf::Event* event);
 	void shuffleBoard();
+	void setSlideDirection(const SlideDirection& direction){
+		slideDirection = direction;
+	} 
 	void update();
 };
 

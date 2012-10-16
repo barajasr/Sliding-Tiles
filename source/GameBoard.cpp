@@ -136,36 +136,21 @@ void GameBoard::processEvent(sf::Event* event){
 void GameBoard::shuffleBoard(){
 	std::srand(std::time(nullptr));
 
-	for (int i(0); i < 1000; i++)
-		swapTiles(SlideDirection(std::rand()% 4 + 1));
+	for (int i(0); i < 1000; i++){
+		slideDirection = SlideDirection(std::rand() % 4 + 1);
+		swapTiles();
+	}
+	slideDirection = none;
 }
 
-void GameBoard::swapTiles(const SlideDirection& direction){
+void GameBoard::swapTiles(){
 	sf::Vector2i toMove(blankSpot);
-	switch(direction){
-		case none:
-			return;
-		case up:
-			toMove.y++;
-			break;
-		case down:
-			toMove.y--;
-			break;
-		case left:
-			toMove.x++;
-			break;
-		case right:
-			toMove.x--;
-			break;
-	}
-
-	if (toMove.x < 0 || toMove.x >= (int)numOfTiles || 
-		toMove.y < 0 || toMove.y >= (int)numOfTiles){
+	tileToMove(toMove);
+	if (toMove.x < 0 || toMove.x >= (int)numOfTiles ||
+        toMove.y < 0 || toMove.y >= (int)numOfTiles)
 		return;
-	}
 
-	// Used long for 64bit addresses
-	long address = reinterpret_cast<long>(gameBoard[blankSpot.x][blankSpot.y]);
+	unsigned long address = reinterpret_cast<unsigned long>(gameBoard[blankSpot.x][blankSpot.y]);
 
 	sf::Vector2f oldBlank = gameBoard[blankSpot.x][blankSpot.y]->getPosition();
 	sf::Vector2f newBlank = gameBoard[toMove.x][toMove.y]->getPosition();
@@ -182,30 +167,12 @@ void GameBoard::swapTiles(const SlideDirection& direction){
 
 void GameBoard::swapTilesAnimation(){
 	sf::Vector2i toMove(blankSpot);
-	switch(slideDirection){
-		case none:
-			return;
-		case up:
-			toMove.y++;
-			break;
-		case down:
-			toMove.y--;
-			break;
-		case left:
-			toMove.x++;
-			break;
-		case right:
-			toMove.x--;
-			break;
-	}
-
-	if (toMove.x < 0 || toMove.x >= (int)numOfTiles || 
-		toMove.y < 0 || toMove.y >= (int)numOfTiles){
+	tileToMove(toMove);
+	if (toMove.x < 0 || toMove.x >= (int)numOfTiles ||
+        toMove.y < 0 || toMove.y >= (int)numOfTiles)
 		return;
-	}
 
-	// Used long for 64bit addresses
-	long address = reinterpret_cast<long>(gameBoard[blankSpot.x][blankSpot.y]);
+	unsigned long address = reinterpret_cast<unsigned long>(gameBoard[blankSpot.x][blankSpot.y]);
 
 	sf::Vector2f oldBlank = gameBoard[blankSpot.x][blankSpot.y]->getPosition();
 	sf::Vector2f newBlank = gameBoard[toMove.x][toMove.y]->getPosition();
@@ -223,8 +190,8 @@ void GameBoard::swapTilesAnimation(){
 }
 
 void GameBoard::tileAnimation(const sf::Vector2u& tileToMove){
-	sf::RectangleShape background(
-		sf::Vector2f(numOfTiles * tileSize, numOfTiles * tileSize));
+	sf::RectangleShape background(sf::Vector2f(numOfTiles * tileSize, 
+                                               numOfTiles * tileSize));
 	background.setFillColor(sf::Color::Black);
 
 	sf::Clock clock;
@@ -277,8 +244,28 @@ void GameBoard::tileAnimation(const sf::Vector2u& tileToMove){
 	}
 }
 
+void GameBoard::tileToMove(sf::Vector2i& tileLocation){
+	switch(slideDirection){
+		case none:
+			return;
+		case up:
+			tileLocation.y++;
+			break;
+		case down:
+			tileLocation.y--;
+			break;
+		case left:
+			tileLocation.x++;
+			break;
+		case right:
+			tileLocation.x--;
+			break;
+	}
+}
+
 void GameBoard::update(){
 	toBeUpdated = false;
 	swapTilesAnimation();
+	slideDirection = none;
 }
 
