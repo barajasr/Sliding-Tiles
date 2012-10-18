@@ -10,12 +10,12 @@ namespace sf{
 
 class Game{
 	private:
-	bool errors;
-	sf::RenderWindow* window;
-	sf::Image* icon;
-	GameBoard* puzzle;
-	const unsigned screenHeight;
-	const unsigned screenWidth;
+	bool errors = false;
+	sf::RenderWindow* window = nullptr;
+	sf::Image* icon = nullptr;
+	GameBoard* puzzle = nullptr;
+	const unsigned screenHeight = 500;
+	const unsigned screenWidth = 500;
 
 	void playLevel();
 

@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <new>
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
@@ -6,16 +7,13 @@
 #include "GameBoard.hpp"
 
 GameBoard::GameBoard(sf::RenderWindow* root, unsigned levelToLoad)
-:allLevelsCompleted(false),
-loadError(false),
-toBeUpdated(false),
-screen(root),
-texture(nullptr),
-blankSpot(0,0),
-level(levelToLoad),
-maxLevel(7),
-tileSize(125){
-	texture = new sf::Texture();
+:screen(root), level(levelToLoad){
+	texture = new (std::nothrow) sf::Texture();
+	if (!texture){
+		error = true;
+		std::cerr << "Not enough memory creating the texture.\n";
+		return;
+	}
 	loadLevel();
 	if (hasError())
 		return;
@@ -29,12 +27,18 @@ tileSize(125){
 			subrect.top = tileSize * y;
 			subrect.width = tileSize;
 			subrect.height = tileSize;
-			answerBoard[x][y] = new sf::Sprite(*texture, subrect);
+			answerBoard[x][y] = new (std::nothrow) sf::Sprite(*texture, subrect);
+			if (!answerBoard){
+				error = true;
+				std::cerr << "Not enough memory creating the Sprites.\n";
+				return;
+			}
+			
 			answerBoard[x][y]->setPosition(subrect.left, subrect.top);
 			gameBoard[x][y] = answerBoard[x][y];
 		}
 
-	// Assign empty tile to both matrices
+	// Mark empty tile for gameBoard
 	blankSpot.x = blankSpot.y = 3;
 
 }
@@ -94,6 +98,18 @@ std::string GameBoard::imageToLoad(){
 	return filename;
 }
 
+void GameBoard::determineSlideDirection(const sf::Vector2u& tile){
+	if (abs(blankSpot.x - tile.x) == 1){
+		toBeUpdated = true;
+		slideDirection = (blankSpot.x < tile.x ? left : right);
+	}else if (abs(blankSpot.y - tile.y) == 1){
+		toBeUpdated = true;
+		slideDirection = (blankSpot.y < tile.y ? up : down);
+	}else {
+		slideDirection = none;
+	}
+}
+
 void GameBoard::draw() const{
 	for (unsigned x(0); x < numOfTiles; x++)
 		for (unsigned y(0); y < numOfTiles; y++)
@@ -109,29 +125,41 @@ void GameBoard::levelUp(){
 
 void GameBoard::loadLevel(){
 		if (!texture->loadFromFile(imageToLoad())){
-			loadError = true;
+			error = true;
 			std::cerr << "Failed to load image for level.\n";
 			return;
 		}
 }
 
-void GameBoard::processEvent(sf::Event* event){
-	if (event->key.code == sf::Keyboard::Up){
+void GameBoard::processEvent(const sf::Keyboard::Key& key){
+	if (key == sf::Keyboard::Up){
 		toBeUpdated = true;
 		slideDirection = up;
-	}else if (event->key.code == sf::Keyboard::Down){
+	}else if (key == sf::Keyboard::Down){
 		toBeUpdated = true;
 		slideDirection = down;
-	}else if (event->key.code == sf::Keyboard::Left){
+	}else if (key == sf::Keyboard::Left){
 		toBeUpdated = true;
 		slideDirection = left;
-	}else if (event->key.code == sf::Keyboard::Right){
+	}else if (key == sf::Keyboard::Right){
 		toBeUpdated = true;
 		slideDirection = right;
 	}
 		
 }
 
+void GameBoard::processEvent(const sf::Mouse::Button& button){
+	if (button == sf::Mouse::Left){
+		sf::Vector2i position = sf::Mouse::getPosition(*screen);
+		sf::Vector2u tilePosition;
+		tilePosition.x = position.x / tileSize;
+		tilePosition.y = position.y / tileSize;
+
+		if (tilePosition.x < (tileSize * numOfTiles) 
+            && tilePosition.y < (tileSize * numOfTiles))
+			determineSlideDirection(tilePosition);	
+	}
+}
 
 void GameBoard::shuffleBoard(){
 	std::srand(std::time(nullptr));

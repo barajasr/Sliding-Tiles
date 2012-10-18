@@ -15,5 +15,6 @@ Coney.png
 Harley.png
 
 # Other files
+*.swp
 *.txt
 Makefile
