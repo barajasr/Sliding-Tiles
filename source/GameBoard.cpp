@@ -65,6 +65,39 @@ bool GameBoard::isSolved() const{
 	return true;
 }
 
+bool GameBoard::swapTilesAnimation(){
+	sf::Vector2i toMove(blankSpot);
+	tileToMove(toMove);
+	if (toMove.x < 0 || toMove.x >= (int)numOfTiles ||
+        toMove.y < 0 || toMove.y >= (int)numOfTiles)
+		return false;
+
+	unsigned long address = reinterpret_cast<unsigned long>(gameBoard[blankSpot.x][blankSpot.y]);
+
+	sf::Vector2f oldBlank = gameBoard[blankSpot.x][blankSpot.y]->getPosition();
+	sf::Vector2f newBlank = gameBoard[toMove.x][toMove.y]->getPosition();
+
+	tileAnimation(sf::Vector2u(toMove));
+
+	gameBoard[blankSpot.x][blankSpot.y] = gameBoard[toMove.x][toMove.y];
+	gameBoard[toMove.x][toMove.y] = reinterpret_cast<sf::Sprite*>(address);
+
+	gameBoard[blankSpot.x][blankSpot.y]->setPosition(oldBlank);
+	gameBoard[toMove.x][toMove.y]->setPosition(newBlank);
+
+	blankSpot.x = toMove.x;
+	blankSpot.y = toMove.y;
+	return true;
+}
+
+
+bool GameBoard::update(){
+	toBeUpdated = false;
+	bool changedBoard = swapTilesAnimation();
+	slideDirection = none;
+	return changedBoard;
+}
+
 std::string GameBoard::imageToLoad(){
 	std::string filename;
 	switch(level){
@@ -99,10 +132,10 @@ std::string GameBoard::imageToLoad(){
 }
 
 void GameBoard::determineSlideDirection(const sf::Vector2u& tile){
-	if (abs(blankSpot.x - tile.x) == 1){
+	if (blankSpot.y == tile.y && abs(blankSpot.x - tile.x) == 1){
 		toBeUpdated = true;
 		slideDirection = (blankSpot.x < tile.x ? left : right);
-	}else if (abs(blankSpot.y - tile.y) == 1){
+	}else if ( blankSpot.x == tile.x && abs(blankSpot.y - tile.y) == 1){
 		toBeUpdated = true;
 		slideDirection = (blankSpot.y < tile.y ? up : down);
 	}else {
@@ -193,30 +226,6 @@ void GameBoard::swapTiles(){
 	blankSpot.y = toMove.y;
 }
 
-void GameBoard::swapTilesAnimation(){
-	sf::Vector2i toMove(blankSpot);
-	tileToMove(toMove);
-	if (toMove.x < 0 || toMove.x >= (int)numOfTiles ||
-        toMove.y < 0 || toMove.y >= (int)numOfTiles)
-		return;
-
-	unsigned long address = reinterpret_cast<unsigned long>(gameBoard[blankSpot.x][blankSpot.y]);
-
-	sf::Vector2f oldBlank = gameBoard[blankSpot.x][blankSpot.y]->getPosition();
-	sf::Vector2f newBlank = gameBoard[toMove.x][toMove.y]->getPosition();
-
-	tileAnimation(sf::Vector2u(toMove));
-
-	gameBoard[blankSpot.x][blankSpot.y] = gameBoard[toMove.x][toMove.y];
-	gameBoard[toMove.x][toMove.y] = reinterpret_cast<sf::Sprite*>(address);
-
-	gameBoard[blankSpot.x][blankSpot.y]->setPosition(oldBlank);
-	gameBoard[toMove.x][toMove.y]->setPosition(newBlank);
-
-	blankSpot.x = toMove.x;
-	blankSpot.y = toMove.y;
-}
-
 void GameBoard::tileAnimation(const sf::Vector2u& tileToMove){
 	sf::RectangleShape background(sf::Vector2f(numOfTiles * tileSize, 
                                                numOfTiles * tileSize));
@@ -291,9 +300,4 @@ void GameBoard::tileToMove(sf::Vector2i& tileLocation){
 	}
 }
 
-void GameBoard::update(){
-	toBeUpdated = false;
-	swapTilesAnimation();
-	slideDirection = none;
-}
 

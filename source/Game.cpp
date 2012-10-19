@@ -4,6 +4,7 @@
 
 #include "Game.hpp"
 #include "GameBoard.hpp"
+#include "Score.hpp"
 
 Game::Game(){
 	window = new(std::nothrow) sf::RenderWindow(sf::VideoMode(screenHeight, screenWidth), 
@@ -30,9 +31,16 @@ Game::Game(){
 	window->setIcon(32,32,icon->getPixelsPtr());
 
 	puzzle = new(std::nothrow) GameBoard(window);	
-	if(!puzzle){
+	if (!puzzle){
 		errors = true;
-		std::cerr << "Not enough to creae puzzle gameboard.\n";
+		std::cerr << "Not enough to create puzzle gameboard.\n";
+		return;
+	}
+
+	score = new(std::nothrow) Score(window);
+	if (!score){
+		errors = true;
+		std::cerr << "Not enought memory to create the scoreboard.\n";
 		return;
 	}
 }
@@ -40,9 +48,11 @@ Game::Game(){
 Game::~Game(){
 	delete window;
 	delete puzzle;
+	delete score;
 	delete icon;
 	window = nullptr;
 	puzzle = nullptr;
+	score = nullptr;
 	icon = nullptr;
 }
 
@@ -65,10 +75,12 @@ void Game::playLevel(){
 		}
 
 		if (puzzle->needsUpdate()){
-			puzzle->update();
+			if (puzzle->update())
+				score->update();
 		}
 
 		window->clear();
+		score->draw();
 		puzzle->draw();
 		window->display();
 	}
@@ -95,6 +107,7 @@ void Game::run(){
 			}
 		}
 		window->clear();
+		score->draw();
 		puzzle->draw();
 		window->display();
 	}

@@ -2,6 +2,7 @@
 #define GAME_HPP
 
 class GameBoard;
+class Score;
 
 namespace sf{
 	class Image;
@@ -14,7 +15,8 @@ class Game{
 	sf::RenderWindow* window = nullptr;
 	sf::Image* icon = nullptr;
 	GameBoard* puzzle = nullptr;
-	const unsigned screenHeight = 500;
+	Score* score = nullptr;
+	const unsigned screenHeight = 710;
 	const unsigned screenWidth = 500;
 
 	void playLevel();

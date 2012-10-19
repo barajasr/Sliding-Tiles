@@ -30,11 +30,11 @@ class GameBoard{
 	const unsigned maxLevel = 7;
 	const unsigned tileSize = 125;
 	
+	bool swapTilesAnimation();
 	std::string imageToLoad();
 	void determineSlideDirection(const sf::Vector2u& tile);
 	void loadLevel();
 	void swapTiles();
-	void swapTilesAnimation();
 	void tileAnimation(const sf::Vector2u& tileToMove);
 	void tileToMove(sf::Vector2i& tileLocation);
 	
@@ -45,6 +45,7 @@ class GameBoard{
 	bool hasError() const { return error;}
 	bool isSolved() const;
 	bool needsUpdate() const{ return toBeUpdated;}
+	bool update();
 	void draw() const;
 	void levelUp();
 	void processEvent(const sf::Keyboard::Key& key);
@@ -53,7 +54,6 @@ class GameBoard{
 	void setSlideDirection(const SlideDirection& direction){
 		slideDirection = direction;
 	} 
-	void update();
 };
 
 #endif
