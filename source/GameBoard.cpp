@@ -8,12 +8,19 @@
 
 GameBoard::GameBoard(sf::RenderWindow* root, unsigned levelToLoad)
 :screen(root), level(levelToLoad){
-	texture = new (std::nothrow) sf::Texture();
-	if (!texture){
+	try{
+		texture = new sf::Texture();
+		for(unsigned y(0); y < numOfTiles; y++)
+			for(unsigned x(0); x < numOfTiles; x++)
+				answerBoard[x][y] = new sf::Sprite();
+			
+	}catch(std::bad_alloc& exception){
 		error = true;
-		std::cerr << "Not enough memory creating the texture.\n";
+		std::cerr << "Gameboard class exception raised while creating members: "
+                  << exception.what() << std::endl;
 		return;
 	}
+
 	loadLevel();
 	if (hasError())
 		return;
@@ -27,20 +34,13 @@ GameBoard::GameBoard(sf::RenderWindow* root, unsigned levelToLoad)
 			subrect.top = tileSize * y;
 			subrect.width = tileSize;
 			subrect.height = tileSize;
-			answerBoard[x][y] = new (std::nothrow) sf::Sprite(*texture, subrect);
-			if (!answerBoard){
-				error = true;
-				std::cerr << "Not enough memory creating the Sprites.\n";
-				return;
-			}
-			
+			answerBoard[x][y]->setTexture(*texture);
+			answerBoard[x][y]->setTextureRect(subrect);
+		
 			answerBoard[x][y]->setPosition(subrect.left, subrect.top);
 			gameBoard[x][y] = answerBoard[x][y];
+
 		}
-
-	// Mark empty tile for gameBoard
-	blankSpot.x = blankSpot.y = 3;
-
 }
 
 GameBoard::~GameBoard(){

@@ -24,7 +24,7 @@ class GameBoard{
 	sf::Sprite* answerBoard[numOfTiles][numOfTiles];
 	sf::Sprite* gameBoard[numOfTiles][numOfTiles];
 	sf::Texture* texture = nullptr;
-	sf::Vector2u blankSpot;
+	sf::Vector2u blankSpot = {3, 3};
 	SlideDirection slideDirection = none;
 	unsigned level = 0;
 	const unsigned maxLevel = 7;

@@ -5,69 +5,63 @@
 #include "Score.hpp"
 
 Score::Score(sf::RenderWindow* root): screen(root){
-	backInterface = new(std::nothrow) sf::Texture();
-	if (backInterface){
-		if (!backInterface->loadFromFile("data/background.png")){
-			error = true;
-			std::cerr << "Error: Failed to load \"data/background.png\"\n";
-			return;
-		}
+	try{
+		backInterface = new sf::Texture();
+		background = new sf::Sprite();
+		numbersList = new sf::Texture();
 
-		background = new(std::nothrow) sf::Sprite(*backInterface);
-		if (!background){
-			error = true;
-			std::cerr << "Not enough memory to create background sprite\n";
-			return;
-		}
-	}else{
+		ones = new sf::Sprite();
+		tens = new sf::Sprite();
+		hundreds = new sf::Sprite();
+		thousands = new sf::Sprite();
+
+		for (unsigned index(0); index < numbers.size(); index++)
+			numbers[index] = new sf::Sprite();
+
+	}catch(std::bad_alloc& exception){
+		std::cerr << "Score class exception raised while creating game members: "
+                  << exception.what() << std::endl;
 		error = true;
-		std::cerr << "Not enough memory to create backInterface texture.\n";
 		return;
+
 	}
 	
-	numbersList = new(std::nothrow) sf::Texture();
-	if (numbersList){
-		if (!numbersList->loadFromFile("data/numbers.png")){
-			error = true;
-			std::cerr << "Error: Failed to load \"data/numbers.png\"\n";
-			return;
-		}
+	if (!backInterface->loadFromFile("data/background.png")){
+		error = true;
+		std::cerr << "Error: Failed to load \"data/background.png\"\n";
+		return;
+	}
+	background->setTexture(*backInterface);
 
-		unsigned numberImageSize = 28;
+	unsigned numberImageSize = 28;
+	if (numbersList->loadFromFile("data/numbers.png")){
 		sf::IntRect rect(0, 0, numberImageSize, numberImageSize);
-		for ( unsigned index(0); index < numbers.size(); index++){
+		for (unsigned index(0); index < numbers.size(); index++){
 			rect.left = index * numberImageSize;
-			numbers[index] = new(std::nothrow) sf::Sprite(*numbersList, rect);
-			if (!numbers[index]){
-				error = true;
-				std::cerr << "Not enough memory to partition numbersList into sprites\n";
-				return;
-			}
-		}
-
-		ones = new(std::nothrow) sf::Sprite(*numbers.at(0));
-		tens = new(std::nothrow) sf::Sprite(*numbers.at(0));
-		hundreds = new(std::nothrow) sf::Sprite(*numbers.at(0));
-		thousands = new(std::nothrow) sf::Sprite(*numbers.at(0));
-		if (ones && tens && hundreds && thousands){
-			sf::Vector2f position(560.0f, 202.0f);
-			thousands->setPosition(position);
-			position.x += numberImageSize;
-			hundreds->setPosition(position);
-			position.x += numberImageSize;
-			tens->setPosition(position);
-			position.x += numberImageSize;
-			ones->setPosition(position);
-		}else{
-			error = true;
-			std::cerr << "Not enough memory to create individual score sprites.\n";
-			return;
+			numbers[index]->setTexture(*numbersList);
+			numbers[index]->setTextureRect(rect);
 		}
 	}else{
 		error = true;
-		std::cerr << "Not enough memory to create numbersList texture.\n";
+		std::cerr << "Error: Failed to load \"data/numbers.png\"\n";
 		return;
 	}
+
+	*ones = *numbers.at(0);
+	*tens = *numbers.at(0);
+	*hundreds = *numbers.at(0);
+	*thousands = *numbers.at(0);
+
+	sf::Vector2f position(560.0f, 202.0f);
+	thousands->setPosition(position);
+	position.x += numberImageSize;
+	hundreds->setPosition(position);
+	position.x += numberImageSize;
+	tens->setPosition(position);
+	position.x += numberImageSize;
+	ones->setPosition(position);
+
+	
 }
 
 Score::~Score(){

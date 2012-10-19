@@ -7,42 +7,28 @@
 #include "Score.hpp"
 
 Game::Game(){
-	window = new(std::nothrow) sf::RenderWindow(sf::VideoMode(screenHeight, screenWidth), 
+	try{
+		window = new sf::RenderWindow(sf::VideoMode(screenHeight, screenWidth), 
                                   "Hex Puzzle", 
-                                  sf::Style::Close);
-	if (!window){
+	                             sf::Style::Close);
+		icon = new sf::Image();
+		puzzle = new GameBoard(window);	
+		score = new Score(window);
+	}catch(std::bad_alloc& exception){
+		std::cerr << "Game class exception raised while creating game members: "
+                  << exception.what() << std::endl;
 		errors = true;
-		std::cerr << "Not enough memory to create screen.\n";
 		return;
 	}
+
 	window->setFramerateLimit(60);
 
-	icon = new(std::nothrow) sf::Image();
-	if(!icon){
-		errors = true;
-		std::cerr << "Not enough to creae icon.\n";
-		return;
-	}
 	if (!icon->loadFromFile("data/icon.png")){
 		std::cerr << "ERROR: Failed to load icon; data/icon.png\n";
 			errors = true;
 			return;
 	}
 	window->setIcon(32,32,icon->getPixelsPtr());
-
-	puzzle = new(std::nothrow) GameBoard(window);	
-	if (!puzzle){
-		errors = true;
-		std::cerr << "Not enough to create puzzle gameboard.\n";
-		return;
-	}
-
-	score = new(std::nothrow) Score(window);
-	if (!score){
-		errors = true;
-		std::cerr << "Not enought memory to create the scoreboard.\n";
-		return;
-	}
 }
 
 Game::~Game(){
@@ -87,7 +73,7 @@ void Game::playLevel(){
 }
 
 void Game::run(){
-	if (this->errors || (!window && !puzzle) || puzzle->hasError())
+	if (errors || puzzle->hasError() || score->hasError())
 		return;
 
 	sf::Event event;
