@@ -60,8 +60,6 @@ Score::Score(sf::RenderWindow* root): screen(root){
 	tens->setPosition(position);
 	position.x += numberImageSize;
 	ones->setPosition(position);
-
-	
 }
 
 Score::~Score(){
@@ -138,5 +136,27 @@ void Score::incrementThousands(){
 	*thousands =  *numbers.at(index);
 	thousands->setPosition(position);
 
+	if (index == 0)
+		reset();
+}
+
+void Score::reset(){
+	score = 0;
+
+	sf::Vector2f position = ones->getPosition();
+	*ones = *numbers.at(0);
+	ones->setPosition(position);
+
+	position = tens->getPosition();
+	*tens = *numbers.at(0);
+	tens->setPosition(position);
+
+	position = hundreds->getPosition();
+	*hundreds = *numbers.at(0);
+	hundreds->setPosition(position);
+
+	position = thousands->getPosition();
+	*thousands = *numbers.at(0);
+	thousands->setPosition(position);
 }
 

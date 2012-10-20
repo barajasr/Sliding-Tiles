@@ -20,6 +20,7 @@ class Game{
 	const unsigned screenWidth = 500;
 
 	void playLevel();
+	void gameFinishedScreen();
 
 	public:
 	Game();

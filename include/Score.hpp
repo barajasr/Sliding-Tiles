@@ -36,6 +36,7 @@ class Score{
 	~Score();
 	bool hasError() const {return error;};
 	void draw();
+	void reset();
 	void update(){incrementScore();}
 
 };

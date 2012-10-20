@@ -42,6 +42,33 @@ Game::~Game(){
 	icon = nullptr;
 }
 
+void Game::gameFinishedScreen(){
+	sf::Event event;
+	sf::Clock clock;
+	while (window->isOpen()){
+		while (window->pollEvent(event)){
+			if (event.type == sf::Event::Closed)
+				window->close();
+			else if (event.type == sf::Event::KeyPressed){
+				if (event.key.code == sf::Keyboard::Return)
+					return;
+				else if (event.key.code == sf::Keyboard::Escape)
+					window->close();
+			}
+		}
+
+		if (clock.getElapsedTime().asSeconds() >= 2.0f){
+			puzzle->levelUp();
+			clock.restart();
+		}
+
+		window->clear();
+		score->draw();
+		puzzle->draw();
+		window->display();
+	}
+}
+
 void Game::playLevel(){
 	sf::Event event;
 	while (window->isOpen()){
@@ -54,9 +81,11 @@ void Game::playLevel(){
 		while (window->pollEvent(event)){
 			if (event.type == sf::Event::Closed)
 				window->close();
-			else if (event.type == sf::Event::KeyPressed)
+			else if (event.type == sf::Event::KeyPressed){
 				puzzle->processEvent(event.key.code);
-			else if (event.type == sf::Event::MouseButtonPressed)
+				if (event.key.code == sf::Keyboard::Escape)
+					window->close();
+			}else if (event.type == sf::Event::MouseButtonPressed)
 				puzzle->processEvent(event.mouseButton.button);
 		}
 
@@ -77,7 +106,7 @@ void Game::run(){
 		return;
 
 	sf::Event event;
-	while (window->isOpen() && !puzzle->levelsCompleted()){
+	while (window->isOpen()){
 		while (window->pollEvent(event)){
 			if (event.type == sf::Event::Closed)
 				window->close();
@@ -85,11 +114,22 @@ void Game::run(){
 				if (event.key.code == sf::Keyboard::Return){
 					puzzle->shuffleBoard();
 					playLevel();
-					if (puzzle->hasError() || !window->isOpen())
+
+					if (!window->isOpen())
 						return;
-					if (puzzle->isSolved())
-						puzzle->levelUp();
-				}
+
+					puzzle->levelUp();
+					if (puzzle->hasError())
+						return;
+					if (puzzle->levelsCompleted()){
+						gameFinishedScreen();
+						if (window->isOpen()){
+							puzzle->reset();
+							score->reset();
+						}
+					}	
+				}else if (event.key.code == sf::Keyboard::Escape)
+					window->close();
 			}
 		}
 		window->clear();

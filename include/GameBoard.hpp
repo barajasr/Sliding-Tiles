@@ -34,6 +34,7 @@ class GameBoard{
 	std::string imageToLoad();
 	void determineSlideDirection(const sf::Vector2u& tile);
 	void loadLevel();
+	void setlevel(unsigned level) {this->level = level;}
 	void swapTiles();
 	void tileAnimation(const sf::Vector2u& tileToMove);
 	void tileToMove(sf::Vector2i& tileLocation);
@@ -50,6 +51,7 @@ class GameBoard{
 	void levelUp();
 	void processEvent(const sf::Keyboard::Key& key);
 	void processEvent(const sf::Mouse::Button& button);
+	void reset();
 	void shuffleBoard();
 	void setSlideDirection(const SlideDirection& direction){
 		slideDirection = direction;

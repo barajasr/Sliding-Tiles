@@ -151,8 +151,10 @@ void GameBoard::draw() const{
 
 void GameBoard::levelUp(){
 	++level;
-	if (level > maxLevel)
+	if (level >= maxLevel){
 		allLevelsCompleted = true;
+		level = 0;
+	}
 	loadLevel();
 }
 
@@ -192,6 +194,12 @@ void GameBoard::processEvent(const sf::Mouse::Button& button){
             && tilePosition.y < (tileSize * numOfTiles))
 			determineSlideDirection(tilePosition);	
 	}
+}
+
+void GameBoard::reset(){
+	allLevelsCompleted = false;
+	setlevel(0);
+	loadLevel();
 }
 
 void GameBoard::shuffleBoard(){
